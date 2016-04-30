@@ -8,6 +8,9 @@ import { UserService } from './user.service';
 })
 export class LoginComponent {
   private goto: string;
+  private email: string;
+  private password: string;
+  private submitted: boolean = false;
 
   constructor(
     private userService: UserService,
@@ -15,11 +18,11 @@ export class LoginComponent {
     routeParams: RouteParams)
   {
     this.goto = routeParams.get('goto');
-    console.log(this.goto);
   }
 
-  onSubmit(email, password) {
-    this.userService.login(email, password).subscribe(result => {
+  onSubmit() {
+    this.submitted = true;
+    this.userService.login(this.email, this.password).subscribe(result => {
       if (result) {
         if (!this.goto)
           this.router.navigate(['Profile']);

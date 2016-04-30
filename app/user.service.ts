@@ -1,5 +1,7 @@
 import { Injectable } from 'angular2/core';
 import { Http, Headers } from 'angular2/http';
+// http://stackoverflow.com/questions/34515173/angular-2-http-get-with-typescript-error-http-get-map-is-not-a-function-in
+import 'rxjs/add/operator/map'
 
 @Injectable()
 export class UserService {
@@ -16,7 +18,7 @@ export class UserService {
 
     return this.http
       .post(
-        '/login',
+        'http://localhost:3003',
         JSON.stringify({ email, password }),
         { headers }
       )
