@@ -11,6 +11,7 @@ export class LoginComponent {
   private email: string;
   private password: string;
   private submitted: boolean = false;
+  private errorMessage: string;
 
   constructor(
     private userService: UserService,
@@ -21,14 +22,37 @@ export class LoginComponent {
   }
 
   onSubmit() {
+    this.errorMessage = null;
     this.submitted = true;
-    this.userService.login(this.email, this.password).subscribe(result => {
-      if (result) {
-        if (!this.goto)
-          this.router.navigate(['Profile']);
+
+    this.userService
+      .login(this.email, this.password)
+      .subscribe(result => {
+        console.log("LOGIN");
+        console.log(result);
+        if (result) {
+          console.log(this.goto);
+          if (!this.goto)
+          {
+            console.log('going to profile');
+            this.router.navigate(['Profile']);
+          }
+          else
+          {
+            console.log('going to goto');
+            this.router.navigateByUrl('/' + decodeURIComponent(this.goto));
+          }
+        }
         else
-          this.router.navigateByUrl(decodeURIComponent(this.goto));
-      }
-    });
+        {
+          this.errorMessage = "Login failed!";
+          this.submitted = false;
+        }
+      }, err => {
+        console.log("LOGIN ERROR");
+        console.log(err);
+      }, () => {
+        console.log("LOGIN COMPLETE");
+      });
   }
 }
