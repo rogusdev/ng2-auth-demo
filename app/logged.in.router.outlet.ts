@@ -19,7 +19,7 @@ export class LoggedInRouterOutlet extends RouterOutlet {
 
     this.router = _parentRouter;
     this.publicRoutes = [
-      '', 'login', 'signup'
+      '', 'login', 'register'
     ];
   }
 
@@ -28,9 +28,12 @@ export class LoggedInRouterOutlet extends RouterOutlet {
       return super.activate(instruction);
     }
 
-    console.log(instruction);
-    console.log(encodeURIComponent(`${instruction.urlPath}?${instruction.urlParams.join('&')}`));
-    this.router.navigate(['Login']);
+    let goto = instruction.urlParams.join('&');
+    if (goto.length > 0)
+      goto = `${instruction.urlPath}?${goto}`;
+    else
+      goto = instruction.urlPath;
+    this.router.navigate(['Login', {'goto': encodeURIComponent(goto)}]);
   }
 
   _canActivate(url) {

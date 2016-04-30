@@ -1,5 +1,5 @@
 import { Component } from 'angular2/core';
-import { Router } from 'angular2/router';
+import { Router, RouteParams } from 'angular2/router';
 import { UserService } from './user.service';
 
 @Component({
@@ -7,15 +7,24 @@ import { UserService } from './user.service';
   templateUrl: 'app/login.component.html',
 })
 export class LoginComponent {
+  private goto: string;
+
   constructor(
     private userService: UserService,
-    private router: Router
-  ) { }
+    private router: Router,
+    routeParams: RouteParams)
+  {
+    this.goto = routeParams.get('goto');
+    console.log(this.goto);
+  }
 
   onSubmit(email, password) {
-    this.userService.login(email, password).subscribe((result) => {
+    this.userService.login(email, password).subscribe(result => {
       if (result) {
-        this.router.navigate(['Home']);
+        if (!this.goto)
+          this.router.navigate(['Profile']);
+        else
+          this.router.navigateByUrl(decodeURIComponent(this.goto));
       }
     });
   }
