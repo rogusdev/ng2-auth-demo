@@ -7,10 +7,11 @@ declare var AWS: any;
 
 
 @Injectable()
-export class UserService {
-  private loggedIn = false;
-  private identityId = null;
-  private devToken = null;
+export class LoginAuthService {
+  private loggedIn: boolean = false;
+  private email: string;
+  private password: string;
+  private identityId: string;
   private cognitoCredentials = null;
 
   constructor(private http: Http) {
@@ -18,6 +19,10 @@ export class UserService {
   }
 
   login(email: string, password: string): Observable<boolean> {
+    this.loggedIn = false;
+    this.email = email;
+    this.password = password;
+
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
 
@@ -26,7 +31,7 @@ export class UserService {
     return this.http.request(new Request({
         method: 'POST',
         headers: headers,
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email, password: password }),
         url: 'https://APIID.execute-api.us-east-1.amazonaws.com/dev/auth/email/login',
       }))
       .map((res: Response) => {
@@ -42,21 +47,20 @@ export class UserService {
           if (!cognitoResponse || !cognitoResponse.Credentials)
           {
             this.cognitoCredentials = null;
-            this.loggedIn = false;
           }
           else
           {
             //localStorage.setItem('auth_token', res.auth_token);
             this.cognitoCredentials = cognitoResponse.Credentials;
-            this.loggedIn = !!this.cognitoCredentials;
             console.log(this.cognitoCredentials);
+            this.loggedIn = !!this.cognitoCredentials;
           }
-          return this.loggedIn;
+          return this.isLoggedIn();
         };
 
         if (body.login) {
           this.identityId = body.identityId;
-          this.devToken = body.token;
+          // there is no reason to store the dev token, we are just going to exchange it for aws creds immediately
 
           // http://reactivex.io/rxjs/class/es6/Observable.js~Observable.html#static-method-create
           // https://www.packtpub.com/books/content/rxjs-observable-promise-users-part-2
@@ -68,13 +72,13 @@ export class UserService {
             console.log(observer);
             console.log(this);
             console.log(this.identityId);
-            console.log(this.devToken);
+            console.log(body.token);
 
             new AWS.CognitoIdentity({
               region: 'us-east-1',
             }).getCredentialsForIdentity({
               IdentityId: this.identityId,
-              Logins: { 'cognito-identity.amazonaws.com': this.devToken }
+              Logins: { 'cognito-identity.amazonaws.com': body.token }
             }, function(err, cognitoResponse) {
               if (err)
               {
@@ -109,10 +113,12 @@ export class UserService {
 
   logout() {
     console.log('logged out');
-    this.identityId = null;
-    this.devToken = null;
-    //localStorage.removeItem('auth_token');
     this.loggedIn = false;
+    this.email = undefined;
+    this.password = undefined;
+    this.identityId = undefined;
+    this.cognitoCredentials = null;
+    //localStorage.removeItem('auth_token');
   }
 
   isLoggedIn() {

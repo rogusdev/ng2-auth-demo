@@ -1,8 +1,9 @@
 import { Component } from 'angular2/core';
 import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from 'angular2/router';
 
-import { UserService } from './user.service';
-import { LoggedInRouterOutlet } from './logged.in.router.outlet';
+import { LoginAuthService } from './login.auth.service';
+import { RouteAuthService } from './route.auth.service';
+import { AuthRouterOutlet } from './auth.router.outlet';
 
 import { HomeComponent } from './home.component';
 import { LoginComponent } from './login.component';
@@ -13,11 +14,12 @@ import { ProfileComponent } from './profile.component';
   selector: 'my-app',
   directives: [
     ROUTER_DIRECTIVES,
-    LoggedInRouterOutlet
+    AuthRouterOutlet
   ],
   providers: [
     ROUTER_PROVIDERS,
-    UserService
+    LoginAuthService,
+    RouteAuthService
   ],
   template: `
     <nav>
